@@ -38,33 +38,6 @@ namespace Game.Tiles
             _tiles.Add(tile);
         }
 
-        // private void Update()
-        // {
-        //     Debug.Log("update");
-
-        //     // Можно не двигать первую строку в ряду, т.к. она уже на краю
-        //     if (Input.GetKeyDown(KeyCode.W) || Input.GetKeyDown(KeyCode.UpArrow))
-        //     {
-        //         Debug.Log("w");
-        //         MoveTiles(Vector2Int.up, 0, 1, 1, 1);
-        //     }
-        //     else if (Input.GetKeyDown(KeyCode.S) || Input.GetKeyDown(KeyCode.DownArrow))
-        //     {
-        //         Debug.Log("s");
-        //         MoveTiles(Vector2Int.down, 0, 1, _grid.Height - 2, -1);
-        //     }
-        //     else if (Input.GetKeyDown(KeyCode.A) || Input.GetKeyDown(KeyCode.LeftArrow))
-        //     {
-        //         Debug.Log("a");
-        //         MoveTiles(Vector2Int.left, 1, 1, 0, 1);
-        //     }
-        //     else if (Input.GetKeyDown(KeyCode.D) || Input.GetKeyDown(KeyCode.RightArrow))
-        //     {
-        //         Debug.Log("d");
-        //         MoveTiles(Vector2Int.right, _grid.Width - 2, -1, 0, 1);
-        //     }
-        // }
-
         private void OnUp(InputValue inputValue)
         {
            MoveTiles(Vector2Int.up, 0, 1, 1, 1);
