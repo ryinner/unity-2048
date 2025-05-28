@@ -1,3 +1,4 @@
+using System.Collections;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -23,7 +24,20 @@ namespace Game.Tiles
             }
         }
 
-        public TileCell Cell { get; private set; }
+        public TileCell Cell
+        {
+            get => _cell;
+            private set
+            {
+                if (_cell != null)
+                {
+                    _cell.Tile = null;
+                }
+
+                _cell = value;
+                _cell.Tile = this;
+            }
+        }
 
         public int Number
         {
@@ -41,6 +55,7 @@ namespace Game.Tiles
         private TileState _state;
 
         private int _number;
+        private TileCell _cell;
 
         private Image _background;
 
@@ -60,28 +75,32 @@ namespace Game.Tiles
 
         public void Spawn(TileCell cell)
         {
-            if (Cell != null)
-            {
-                Cell.Tile = null;
-            }
-
             Cell = cell;
-            Cell.Tile = this;
 
             transform.position = Cell.transform.position;
         }
 
-        public void MoveTo(TileCell cell)
+        public void MoveTo(TileCell cell, float duration)
         {
-              if (Cell != null)
+            Cell = cell;
+
+            StartCoroutine(Animate(Cell.transform.position, duration));
+        }
+
+        private IEnumerator Animate(Vector3 to, float duration)
+        {
+            float elapsed = 0f;
+
+            Vector3 from = transform.position;
+
+            while (elapsed < duration)
             {
-                Cell.Tile = null;
+                transform.position = Vector3.Lerp(from, to, elapsed / duration);
+                elapsed += Time.deltaTime;
+                yield return null;
             }
 
-            Cell = cell;
-            Cell.Tile = this;
-
-            transform.position = Cell.transform.position;
+            transform.position = to;
         }
     }
 }
