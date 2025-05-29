@@ -1,5 +1,6 @@
 using System.Collections;
 using Game.Tiles;
+using TMPro;
 using UnityEngine;
 
 namespace Game
@@ -12,11 +13,33 @@ namespace Game
         [SerializeField]
         private CanvasGroup _gameOver;
 
+        [SerializeField]
+        private TextMeshProUGUI _scoreText;
+
+        [SerializeField]
+        private TextMeshProUGUI _bestScoreText;
+
+        private int _score = 0;
+
         [field: SerializeField, Range(0.1f, 1f)]
         public float AnimationDuration { get; private set; } = 0.5f;
 
+        private int Score
+        {
+            get => _score;
+            set
+            {
+                _score = value;
+                _scoreText.text = _score.ToString();
+                SaveBestScore();
+            }
+        }
+
         public void NewGame()
         {
+            Score = 0;
+            _bestScoreText.text = LoadBestScore().ToString();
+
             _gameOver.alpha = 0;
             _gameOver.interactable = false;
 
@@ -32,6 +55,11 @@ namespace Game
             _gameOver.interactable = true;
 
             StartCoroutine(Fade(_gameOver, 1f, 1f));
+        }
+
+        public void IncreaseScore(int points)
+        {
+            Score += points;
         }
 
         private IEnumerator Fade(CanvasGroup canvasGroup, float to, float delay)
@@ -54,6 +82,21 @@ namespace Game
         private void Start()
         {
             NewGame();
+        }
+
+        private void SaveBestScore()
+        {
+            int bestScore = LoadBestScore();
+
+            if (Score > bestScore)
+            {
+                PlayerPrefs.SetInt("bestScore", Score);
+            }
+        }
+
+        private int LoadBestScore()
+        {
+            return PlayerPrefs.GetInt("bestScore", 0);
         }
     }
 }

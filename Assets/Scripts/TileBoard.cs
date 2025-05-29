@@ -161,6 +161,8 @@ namespace Game.Tiles
             int number = b.Number * 2;
 
             b.SetState(TileStates[index], number);
+
+            _gameManager.IncreaseScore(number);
         }
 
         private int IndexOf(TileState state)
