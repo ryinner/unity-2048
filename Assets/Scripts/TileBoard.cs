@@ -12,7 +12,14 @@ namespace Game.Tiles
         [SerializeField]
         private Tile _tilePrefab;
 
-        [field: SerializeField]
+        private TileGrid _grid;
+
+        private List<Tile> _tiles;
+
+        [SerializeField]
+        private GameManager _gameManager;
+
+        [field: SerializeField, Space(20)]
         public TileState[] TileStates { get; set; }
 
         [field: SerializeField, Range(0.1f, 0.5f)]
@@ -20,23 +27,7 @@ namespace Game.Tiles
 
         private bool Waiting { get; set; } = false;
 
-        private TileGrid _grid;
-
-        private List<Tile> _tiles;
-
-        private void Awake()
-        {
-            _grid = GetComponentInChildren<TileGrid>();
-            _tiles = new List<Tile>();
-        }
-
-        private void Start()
-        {
-            CreateTile();
-            CreateTile();
-        }
-
-        private void CreateTile()
+        public void CreateTile()
         {
             Tile tile = Instantiate(_tilePrefab, _grid.transform);
             tile.SetState(TileStates.First(), 2);
@@ -47,6 +38,27 @@ namespace Game.Tiles
             }
 
             _tiles.Add(tile);
+        }
+
+        public void Clear()
+        {
+            foreach (var cell in _grid.Cells)
+            {
+                cell.Tile = null;
+            }
+
+            foreach (var tile in _tiles)
+            {
+                Destroy(tile.gameObject);
+            }
+
+            _tiles.Clear();
+        }
+
+        private void Awake()
+        {
+            _grid = GetComponentInChildren<TileGrid>();
+            _tiles = new List<Tile>();
         }
 
         private void OnUp(InputValue inputValue)
@@ -148,7 +160,7 @@ namespace Game.Tiles
             int index = Mathf.Clamp(IndexOf(b.State) + 1, 0, TileStates.Length - 1);
             int number = b.Number * 2;
 
-            b.SetState(TileStates[index], number); 
+            b.SetState(TileStates[index], number);
         }
 
         private int IndexOf(TileState state)
@@ -186,7 +198,46 @@ namespace Game.Tiles
             {
                 CreateTile();
             }
-            // TODO: check is game over
+
+            if (CheckForGameOver())
+            {
+                _gameManager.GameOver();
+            }
+        }
+
+        private bool CheckForGameOver()
+        {
+            if (_tiles.Count < _grid.Size)
+            {
+                return false;
+            }
+
+
+            foreach (var tile in _tiles)
+            {
+                TileCell up = _grid.GetAdjacentCell(tile.Cell, Vector2Int.up);
+                if (up != null && IsCanMerge(tile, up.Tile))
+                {
+                    return false;
+                }
+                TileCell down = _grid.GetAdjacentCell(tile.Cell, Vector2Int.down);
+                if (down != null && IsCanMerge(tile, down.Tile))
+                {
+                    return false;
+                }
+                TileCell left = _grid.GetAdjacentCell(tile.Cell, Vector2Int.left);
+                if (left != null && IsCanMerge(tile, left.Tile))
+                {
+                    return false;
+                }
+                TileCell right = _grid.GetAdjacentCell(tile.Cell, Vector2Int.right);
+                if (right != null && IsCanMerge(tile, right.Tile))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 } 
