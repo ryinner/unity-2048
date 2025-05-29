@@ -7,6 +7,15 @@ namespace Game.Tiles
 {
     public class Tile : MonoBehaviour
     {
+        private TileState _state;
+
+        private int _number;
+        private TileCell _cell;
+
+        private Image _background;
+
+        private TextMeshProUGUI _text;
+
         public TileState State
         {
             get => _state;
@@ -35,7 +44,11 @@ namespace Game.Tiles
                 }
 
                 _cell = value;
-                _cell.Tile = this;
+
+                if (_cell != null)
+                {
+                    _cell.Tile = this;
+                }
             }
         }
 
@@ -52,14 +65,7 @@ namespace Game.Tiles
             }
         }
 
-        private TileState _state;
-
-        private int _number;
-        private TileCell _cell;
-
-        private Image _background;
-
-        private TextMeshProUGUI _text;
+        public bool Locked { get; set; } = false;
 
         private void Awake()
         {
@@ -87,7 +93,16 @@ namespace Game.Tiles
             StartCoroutine(Animate(Cell.transform.position, duration));
         }
 
-        private IEnumerator Animate(Vector3 to, float duration)
+        public void Merge(TileCell cell, float duration)
+        {
+            StartCoroutine(Animate(Cell.transform.position, duration, true));
+
+            cell.Tile.Locked = true;
+
+            Cell = null;
+        }
+
+        private IEnumerator Animate(Vector3 to, float duration, bool merging = false)
         {
             float elapsed = 0f;
 
@@ -101,6 +116,11 @@ namespace Game.Tiles
             }
 
             transform.position = to;
+
+            if (merging)
+            {
+                Destroy(gameObject);
+            }
         }
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,7 +40,11 @@ namespace Game.Tiles
         {
             Tile tile = Instantiate(_tilePrefab, _grid.transform);
             tile.SetState(TileStates.First(), 2);
-            tile.Spawn(_grid.GetRandomEmptyCell());
+            TileCell randomEmptyCell = _grid.GetRandomEmptyCell();
+            if (randomEmptyCell)
+            {
+                tile.Spawn(_grid.GetRandomEmptyCell());
+            }
 
             _tiles.Add(tile);
         }
@@ -103,6 +108,8 @@ namespace Game.Tiles
             TileCell newCell = null;
             TileCell adjacent = _grid.GetAdjacentCell(tile.Cell, direction);
 
+            bool isChanged = false;
+
             int loops = 0;
             while (adjacent != null)
             {
@@ -112,7 +119,11 @@ namespace Game.Tiles
                 }
                 if (adjacent.IsOccupied)
                 {
-                    // TODO: merging
+                    if (IsCanMerge(tile, adjacent.Tile))
+                    {
+                        isChanged = true;
+                        Merge(tile, adjacent.Tile);
+                    }
                     break;
                 }
 
@@ -123,10 +134,39 @@ namespace Game.Tiles
             if (newCell != null)
             {
                 tile.MoveTo(newCell, AnimationDuration);
-                return true;
+                isChanged = true;
             }
 
-            return false;
+            return isChanged;
+        }
+
+        private void Merge(Tile a, Tile b)
+        {
+            _tiles.Remove(a);
+            a.Merge(b.Cell, AnimationDuration);
+
+            int index = Mathf.Clamp(IndexOf(b.State) + 1, 0, TileStates.Length - 1);
+            int number = b.Number * 2;
+
+            b.SetState(TileStates[index], number); 
+        }
+
+        private int IndexOf(TileState state)
+        {
+            for (int i = 0; i < TileStates.Length; i++)
+            {
+                if (state == TileStates[i])
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        private bool IsCanMerge(Tile a, Tile b)
+        {
+            return a.Number == b.Number && !b.Locked;
         }
 
         private IEnumerator WaitForChanges()
@@ -137,7 +177,15 @@ namespace Game.Tiles
 
             Waiting = false;
 
-            // TODO: create new tile
+            foreach (var tile in _tiles)
+            {
+                tile.Locked = false;
+            }
+
+            if (_tiles.Count < _grid.Size)
+            {
+                CreateTile();
+            }
             // TODO: check is game over
         }
     }

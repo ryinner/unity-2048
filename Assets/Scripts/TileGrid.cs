@@ -17,21 +17,21 @@ namespace Game.Tiles
 
         public TileCell GetRandomEmptyCell()
         {
-            int index = Random.Range(0, Cells.Length);
+            int index = Random.Range(0, Cells.Length - 1);
             int startingIndex = index;
 
             while (Cells[index].IsOccupied)
             {
                 index++;
 
-                if (index > Cells.Length)
+                if (index >= Cells.Length)
                 {
                     index = 0;
                 }
 
                 if (startingIndex == index)
                 {
-                    return null;   
+                    return null;
                 }
             }
 
