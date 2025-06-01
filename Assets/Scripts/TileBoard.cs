@@ -19,25 +19,25 @@ namespace Game.Tiles
         [SerializeField]
         private GameManager _gameManager;
 
+        [field: SerializeField, Range(0.1f, 0.5f)]
+        private float AnimationDuration { get; set; } = 0.1f;
+
         [field: SerializeField, Space(20)]
         public TileState[] TileStates { get; set; }
-
-        [field: SerializeField, Range(0.1f, 0.5f)]
-        private float AnimationDuration { get; } = 0.1f;
 
         private bool Waiting { get; set; } = false;
 
         public void CreateTile()
         {
-            Tile tile = Instantiate(_tilePrefab, _grid.transform);
-            tile.SetState(TileStates.First(), 2);
-            TileCell randomEmptyCell = _grid.GetRandomEmptyCell();
-            if (randomEmptyCell)
-            {
-                tile.Spawn(_grid.GetRandomEmptyCell());
-            }
+                Tile tile = Instantiate(_tilePrefab, _grid.transform);
+                tile.SetState(TileStates.First(), 2);
+                TileCell randomEmptyCell = _grid.GetRandomEmptyCell();
+                if (randomEmptyCell)
+                {
+                    tile.Spawn(_grid.GetRandomEmptyCell());
+                }
 
-            _tiles.Add(tile);
+                _tiles.Add(tile);
         }
 
         public void Clear()
